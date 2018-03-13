@@ -6,6 +6,7 @@
 package com.kadirkorkmaz.rabbitmq.common;
 
 import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
+import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTable;
 import java.util.List;
 
 /**
@@ -25,5 +26,7 @@ public interface Node {
     public void addConnection(NodeIdentifier nodeId);
     
     public void removeConnection(NodeIdentifier nodeId);
+ 
+    public RoutingTable getRoutinTable();
     
 }

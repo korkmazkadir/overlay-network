@@ -5,6 +5,8 @@
  */
 package com.kadirkorkmaz.rabbitmq.common;
 
+import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTable;
+
 /**
  *
  * @author Kadir Korkmaz
@@ -13,6 +15,6 @@ public interface Router {
 
     public void routeMessage(Message message);
     
-    public void getRoutingTable();
+    public RoutingTable getRoutingTable();
     
 }

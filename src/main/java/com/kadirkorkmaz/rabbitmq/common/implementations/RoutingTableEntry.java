@@ -46,6 +46,29 @@ public class RoutingTableEntry {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj.getClass().equals(this.getClass()) == false) {
+            return false;
+        }
+
+        RoutingTableEntry e = (RoutingTableEntry) obj;
+        if (e.destinationNodeId == destinationNodeId && e.overLinkNodeId == overLinkNodeId && e.cost == cost) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return destinationNodeId.getNodeId().hashCode();
+    }
+
+    @Override
     public String toString() {
         return "RoutingTableEntry{" + "destinationNodeId=" + destinationNodeId + ", overLinkNodeId=" + overLinkNodeId + ", cost=" + cost + '}';
     }

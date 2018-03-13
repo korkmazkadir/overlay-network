@@ -13,9 +13,11 @@ import com.kadirkorkmaz.rabbitmq.common.implementations.MessageType;
 import com.kadirkorkmaz.rabbitmq.common.implementations.NetworkConnection;
 import com.kadirkorkmaz.rabbitmq.common.implementations.NetworkMessage;
 import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
+import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTable;
 import com.kadirkorkmaz.rabbitmq.router.DynamicRouter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -37,7 +39,7 @@ public class NodeImp implements Node {
         this.id = id;
         incommingConnection = new NetworkConnection(ConnectionType.INCOMMING_CONNECTION, id);
         incommingConnection.openConnection();
-        this.connections = new ArrayList<>();
+        this.connections = Collections.synchronizedList(new ArrayList());
         router = new DynamicRouter(this);
         incommingConnection.AddIncommingMessageListener(router);
     }
@@ -73,27 +75,34 @@ public class NodeImp implements Node {
         } catch (TimeoutException ex) {
             Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
         }
-                
+
         connections.add(connection);
     }
 
-    
     @Override
     public void removeConnection(NodeIdentifier nodeId) {
-        
-        for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext();) {
-            Connection connection = iterator.next();
-            if (connection.getNodeId().equals(id)) {
-                try {
-                    connection.closeConnection();
-                } catch (IOException ex) {
-                    Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (TimeoutException ex) {
-                    Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
+
+        synchronized (connections) {
+            for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext();) {
+                Connection connection = iterator.next();
+                if (connection.getNodeId().equals(id)) {
+                    try {
+                        connection.closeConnection();
+                    } catch (IOException ex) {
+                        Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (TimeoutException ex) {
+                        Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    iterator.remove();
                 }
-                iterator.remove();
             }
-        }   
+        }
+
+    }
+
+    @Override
+    public RoutingTable getRoutinTable() {
+        return router.getRoutingTable();
     }
 
 }

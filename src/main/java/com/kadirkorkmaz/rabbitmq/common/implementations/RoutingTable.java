@@ -5,8 +5,11 @@
  */
 package com.kadirkorkmaz.rabbitmq.common.implementations;
 
+import com.google.gson.internal.LinkedHashTreeMap;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -16,11 +19,11 @@ public class RoutingTable {
 
     private final NodeIdentifier nodeId;
 
-    private final List<RoutingTableEntry> entryList;
+    private final Map<String, RoutingTableEntry> entryList;
 
     public RoutingTable(NodeIdentifier nodeId) {
         this.nodeId = nodeId;
-        entryList = new ArrayList<>();
+        entryList = new LinkedHashTreeMap<>();
     }
 
     public NodeIdentifier getNodeId() {
@@ -28,11 +31,11 @@ public class RoutingTable {
     }
 
     public List<RoutingTableEntry> getEntryList() {
-        return entryList;
+        return new ArrayList<>(entryList.values());
     }
     
     public void addEntry(RoutingTableEntry entry){
-        entryList.add(entry);
+        entryList.put(entry.getDestinationNodeId().getNodeId(),entry);
     }
 
 }

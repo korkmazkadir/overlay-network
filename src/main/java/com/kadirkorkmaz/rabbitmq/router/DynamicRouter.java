@@ -18,9 +18,11 @@ import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTable;
 import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTableEntry;
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -47,14 +49,14 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
     private final static Gson gson = new Gson();
 
     private final Lock routingTableLock;
-    
 
     public DynamicRouter(Node node) {
         this.node = node;
         routingTable = new RoutingTable(node.getIdentifier());
+        routingTable.addEntry(new RoutingTableEntry(node.getIdentifier(), node.getIdentifier(), 0));
         timer = new Timer();
         timer.schedule(this, DELAY_MS, TIMER_PERIOD_MS);
-        nodeIdToTableEntryMap = new LinkedHashMap<>();
+        nodeIdToTableEntryMap = new ConcurrentHashMap<>(); // LinkedHashMap<>();
         healthCheckMessage = new NetworkMessage(MessageType.HEALT_CHECK, node.getIdentifier(), null, "I am here");
         routingTableLock = new ReentrantLock();
     }
@@ -65,18 +67,22 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
     }
 
     @Override
-    public void getRoutingTable() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public RoutingTable getRoutingTable() {
+        return this.routingTable;
     }
 
     public void sendMessageToOtherConnections(Message message) {
         routingTableLock.lock();
         try {
-            for (Connection connection : node.getConnections()) {
-                try {
-                    connection.sendMessage(message);
-                } catch (IOException ex) {
-                    Logger.getLogger(DynamicRouter.class.getName()).log(Level.SEVERE, null, ex);
+
+            List<Connection> connections = node.getConnections();
+            synchronized (connections) {
+                for (Connection connection : connections) {
+                    try {
+                        connection.sendMessage(message);
+                    } catch (IOException ex) {
+                        Logger.getLogger(DynamicRouter.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         } finally {
@@ -90,9 +96,13 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
     }
 
     private Connection findConnectionById(NodeIdentifier id) {
-        for (Connection connection : node.getConnections()) {
-            if (connection.getNodeId().equals(id)) {
-                return connection;
+
+        List<Connection> connections = node.getConnections();
+        synchronized (connections) {
+            for (Connection connection : connections) {
+                if (connection.getNodeId().equals(id)) {
+                    return connection;
+                }
             }
         }
 
@@ -126,7 +136,8 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
             for (RoutingTableEntry entry : table.getEntryList()) {
 
                 //If this node accessable over me skip it
-                if (entry.getOverLinkNodeId().equals(node.getIdentifier())) {
+                if (entry.getOverLinkNodeId().getNodeId().equals(node.getIdentifier().getNodeId())) {
+                    //System.out.println(entry.getOverLinkNodeId()."");
                     continue;
                 }
 
@@ -134,15 +145,17 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
                     RoutingTableEntry routingTableEntry = nodeIdToTableEntryMap.get(entry.getDestinationNodeId().getNodeId());
                     //If we have already this node but new way is better than use the new way
                     if (routingTableEntry.getCost() <= (entry.getCost() + LINK_COST)) {
+                        //System.out.println("Cost is smaller " + routingTableEntry.getCost() + " -- " + (entry.getCost() + LINK_COST));
                         continue;
                     }
                 }
-                
+
                 //Cost smaller or no entry on table so add this entry to table
                 entry.setOverLinkNodeId(message.getSender());
                 entry.setCost(entry.getCost() + LINK_COST);
 
-                nodeIdToTableEntryMap.put(entry.getDestinationNodeId().getNodeId(), entry);
+                String nodeId = entry.getDestinationNodeId().getNodeId();
+                nodeIdToTableEntryMap.put(nodeId, entry);
 
                 routingTableLock.lock();
                 try {
@@ -158,7 +171,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
             if (sendOther) {
                 sendRoutingTableToOthers();
             }
-            
+
         }
 
         if (message.getType() == MessageType.USER_DATA) {
