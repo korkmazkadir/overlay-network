@@ -193,7 +193,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
                         Logger.getLogger(DynamicRouter.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
-                    System.out.println("Opss, No connection :( ");
+                    System.out.println("Opss, No connection :( " + entry.getOverLinkNodeId());
                 }
 
             } else {

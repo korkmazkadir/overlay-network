@@ -32,7 +32,7 @@ public class NetworkConnection implements Connection {
     private Channel channel;
     private final List<MessageListener> incommingMessagelisteners;
     private final List<MessageListener> outgoingMessagelisteners;
-
+    
     private static final Gson gson = new Gson();
 
     public NetworkConnection(ConnectionType type, NodeIdentifier nodeId) {
@@ -42,6 +42,7 @@ public class NetworkConnection implements Connection {
         outgoingMessagelisteners = new ArrayList<>();
     }
 
+    
     private void startListening() throws IOException {
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
@@ -87,12 +88,12 @@ public class NetworkConnection implements Connection {
     }
 
     @Override
-    public void AddIncommingMessageListener(MessageListener listener) {
+    public void addIncommingMessageListener(MessageListener listener) {
         incommingMessagelisteners.add(listener);
     }
 
     @Override
-    public void AddOutgoingMessageListener(MessageListener listener) {
+    public void addOutgoingMessageListener(MessageListener listener) {
         outgoingMessagelisteners.add(listener);
     }
 
@@ -107,4 +108,9 @@ public class NetworkConnection implements Connection {
         return nodeId;
     }
 
+    @Override
+    public String toString() {
+        return "NetworkConnection{" + "type=" + type + ", nodeId=" + nodeId + '}';
+    }
+    
 }

@@ -26,7 +26,7 @@ public class App3 {
 
     public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
 
-        Integer numberOfNodes = 41;
+        Integer numberOfNodes = 21;
         Integer i;
 
         List<Node> nodes = new LinkedList<>();
@@ -72,6 +72,16 @@ public class App3 {
                 this.cancel();
             }
         }, 15000, 1000);
+
+        Timer t2 = new Timer();
+        t2.schedule(new TimerTask() {
+            @Override
+            public void run() {
+
+                nodes.get(5).sendMessage(nodes.get(15).getIdentifier(), "Hello Message :)....");
+                this.cancel();
+            }
+        }, 6000, 1000);
 
         Random rand = new Random();
         Integer sender;

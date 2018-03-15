@@ -24,10 +24,10 @@ public interface Connection {
   
     public void sendMessage(Message message) throws IOException;
 
-    public void AddIncommingMessageListener(MessageListener listener);
+    public void addIncommingMessageListener(MessageListener listener);
     
-    public void AddOutgoingMessageListener(MessageListener listener);
-    
+    public void addOutgoingMessageListener(MessageListener listener);
+
     public void closeConnection() throws IOException, TimeoutException;
     
 }

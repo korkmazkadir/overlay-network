@@ -56,6 +56,10 @@ public class App2 {
 
         n8.addConnection(n3.getIdentifier());
         n3.addConnection(n8.getIdentifier());
+
+        n4.addConnection(n2.getIdentifier());
+        n2.addConnection(n4.getIdentifier());
+
         
         Thread.sleep(3000);
 

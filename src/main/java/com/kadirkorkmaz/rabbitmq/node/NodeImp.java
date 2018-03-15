@@ -41,7 +41,7 @@ public class NodeImp implements Node {
         incommingConnection.openConnection();
         this.connections = Collections.synchronizedList(new ArrayList());
         router = new DynamicRouter(this);
-        incommingConnection.AddIncommingMessageListener(router);
+        incommingConnection.addIncommingMessageListener(router);
     }
 
     @Override
