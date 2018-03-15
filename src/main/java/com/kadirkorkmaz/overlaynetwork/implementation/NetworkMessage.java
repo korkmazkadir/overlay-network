@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq.common.implementations;
+package com.kadirkorkmaz.overlaynetwork.implementation;
 
-import com.kadirkorkmaz.rabbitmq.common.Message;
+import com.kadirkorkmaz.overlaynetwork.common.Message;
 
 /**
  *

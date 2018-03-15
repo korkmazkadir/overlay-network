@@ -3,19 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq.router;
+package com.kadirkorkmaz.overlaynetwork.router;
 
 import com.google.gson.Gson;
-import com.kadirkorkmaz.rabbitmq.common.Connection;
-import com.kadirkorkmaz.rabbitmq.common.Message;
-import com.kadirkorkmaz.rabbitmq.common.MessageListener;
-import com.kadirkorkmaz.rabbitmq.common.Node;
-import com.kadirkorkmaz.rabbitmq.common.Router;
-import com.kadirkorkmaz.rabbitmq.common.implementations.MessageType;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NetworkMessage;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
-import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTable;
-import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTableEntry;
+import com.kadirkorkmaz.overlaynetwork.common.Connection;
+import com.kadirkorkmaz.overlaynetwork.common.Message;
+import com.kadirkorkmaz.overlaynetwork.common.MessageListener;
+import com.kadirkorkmaz.overlaynetwork.common.Node;
+import com.kadirkorkmaz.overlaynetwork.common.Router;
+import com.kadirkorkmaz.overlaynetwork.implementation.MessageType;
+import com.kadirkorkmaz.overlaynetwork.implementation.NetworkMessage;
+import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
+import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTableEntry;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;

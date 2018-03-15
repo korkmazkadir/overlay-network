@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq.common;
+package com.kadirkorkmaz.overlaynetwork.common;
 
-import com.kadirkorkmaz.rabbitmq.common.implementations.ConnectionType;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.implementation.ConnectionType;
+import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 

@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq.common;
+package com.kadirkorkmaz.overlaynetwork.common;
 
-import com.kadirkorkmaz.rabbitmq.common.implementations.MessageType;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.implementation.MessageType;
+import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
 
 /**
  *

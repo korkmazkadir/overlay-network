@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq;
+package com.kadirkorkmaz.overlaynetwork;
 
-import com.kadirkorkmaz.rabbitmq.common.Node;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
-import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTable;
-import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTableEntry;
-import com.kadirkorkmaz.rabbitmq.node.NodeImp;
+import com.kadirkorkmaz.overlaynetwork.common.Node;
+import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
+import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTableEntry;
+import com.kadirkorkmaz.overlaynetwork.node.NetworkNode;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,29 +39,29 @@ public class App6 {
 
     public static void main(String[] args) throws IOException, TimeoutException {
 
-        Node n11 = new NodeImp(new NodeIdentifier("11"));
-        Node n12 = new NodeImp(new NodeIdentifier("12"));
-        Node n13 = new NodeImp(new NodeIdentifier("13"));
-        Node n14 = new NodeImp(new NodeIdentifier("14"));
-        Node n15 = new NodeImp(new NodeIdentifier("15"));
+        Node n11 = new NetworkNode(new NodeIdentifier("11"));
+        Node n12 = new NetworkNode(new NodeIdentifier("12"));
+        Node n13 = new NetworkNode(new NodeIdentifier("13"));
+        Node n14 = new NetworkNode(new NodeIdentifier("14"));
+        Node n15 = new NetworkNode(new NodeIdentifier("15"));
 
         Node[] subnet1 = {n11, n12, n13, n14, n15};
         connectSubnetNodes(subnet1);
 
-        Node n21 = new NodeImp(new NodeIdentifier("21"));
-        Node n22 = new NodeImp(new NodeIdentifier("22"));
-        Node n23 = new NodeImp(new NodeIdentifier("23"));
-        Node n24 = new NodeImp(new NodeIdentifier("24"));
-        Node n25 = new NodeImp(new NodeIdentifier("25"));
+        Node n21 = new NetworkNode(new NodeIdentifier("21"));
+        Node n22 = new NetworkNode(new NodeIdentifier("22"));
+        Node n23 = new NetworkNode(new NodeIdentifier("23"));
+        Node n24 = new NetworkNode(new NodeIdentifier("24"));
+        Node n25 = new NetworkNode(new NodeIdentifier("25"));
 
         Node[] subnet2 = {n21, n22, n23, n24, n25};
         connectSubnetNodes(subnet2);
 
-        Node n31 = new NodeImp(new NodeIdentifier("31"));
-        Node n32 = new NodeImp(new NodeIdentifier("32"));
-        Node n33 = new NodeImp(new NodeIdentifier("33"));
-        Node n34 = new NodeImp(new NodeIdentifier("34"));
-        Node n35 = new NodeImp(new NodeIdentifier("35"));
+        Node n31 = new NetworkNode(new NodeIdentifier("31"));
+        Node n32 = new NetworkNode(new NodeIdentifier("32"));
+        Node n33 = new NetworkNode(new NodeIdentifier("33"));
+        Node n34 = new NetworkNode(new NodeIdentifier("34"));
+        Node n35 = new NetworkNode(new NodeIdentifier("35"));
 
         Node[] subnet3 = {n31, n32, n33, n34, n35};
         connectSubnetNodes(subnet3);

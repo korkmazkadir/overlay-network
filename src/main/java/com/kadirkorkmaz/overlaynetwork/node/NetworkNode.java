@@ -3,18 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq.node;
+package com.kadirkorkmaz.overlaynetwork.node;
 
-import com.kadirkorkmaz.rabbitmq.common.Connection;
-import com.kadirkorkmaz.rabbitmq.common.Message;
-import com.kadirkorkmaz.rabbitmq.common.Node;
-import com.kadirkorkmaz.rabbitmq.common.implementations.ConnectionType;
-import com.kadirkorkmaz.rabbitmq.common.implementations.MessageType;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NetworkConnection;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NetworkMessage;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
-import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTable;
-import com.kadirkorkmaz.rabbitmq.router.DynamicRouter;
+import com.kadirkorkmaz.overlaynetwork.common.Connection;
+import com.kadirkorkmaz.overlaynetwork.common.Message;
+import com.kadirkorkmaz.overlaynetwork.common.Node;
+import com.kadirkorkmaz.overlaynetwork.implementation.ConnectionType;
+import com.kadirkorkmaz.overlaynetwork.implementation.MessageType;
+import com.kadirkorkmaz.overlaynetwork.implementation.NetworkConnection;
+import com.kadirkorkmaz.overlaynetwork.implementation.NetworkMessage;
+import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
+import com.kadirkorkmaz.overlaynetwork.router.DynamicRouter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,14 +28,14 @@ import java.util.logging.Logger;
  *
  * @author Kadir Korkmaz
  */
-public class NodeImp implements Node {
+public class NetworkNode implements Node {
 
     private final NodeIdentifier id;
     private final Connection incommingConnection;
     private final List<Connection> connections;
     private final DynamicRouter router;
 
-    public NodeImp(NodeIdentifier id) throws IOException, TimeoutException {
+    public NetworkNode(NodeIdentifier id) throws IOException, TimeoutException {
         this.id = id;
         incommingConnection = new NetworkConnection(ConnectionType.INCOMMING_CONNECTION, id);
         incommingConnection.openConnection();
@@ -71,9 +71,9 @@ public class NodeImp implements Node {
         try {
             connection.openConnection();
         } catch (IOException ex) {
-            Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NetworkNode.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TimeoutException ex) {
-            Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NetworkNode.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         connections.add(connection);
@@ -89,9 +89,9 @@ public class NodeImp implements Node {
                     try {
                         connection.closeConnection();
                     } catch (IOException ex) {
-                        Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(NetworkNode.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (TimeoutException ex) {
-                        Logger.getLogger(NodeImp.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(NetworkNode.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     iterator.remove();
                 }

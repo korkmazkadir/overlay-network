@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq.common.implementations;
+package com.kadirkorkmaz.overlaynetwork.implementation;
 
 /**
  *
  * @author Kadir Korkmaz
  */
-public enum ConnectionType {
-    INCOMMING_CONNECTION, OUT_GOING_CONNECTION;
+public enum MessageType {
+    HEALT_CHECK, ROUTING_TABLE, USER_DATA;
 }

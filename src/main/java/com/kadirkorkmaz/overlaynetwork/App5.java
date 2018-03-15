@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq;
+package com.kadirkorkmaz.overlaynetwork;
 
-import com.kadirkorkmaz.rabbitmq.common.Node;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
-import com.kadirkorkmaz.rabbitmq.node.NodeImp;
+import com.kadirkorkmaz.overlaynetwork.common.Node;
+import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.node.NetworkNode;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,11 +28,11 @@ public class App5 {
 
     public static void main(String[] args) throws IOException, TimeoutException, InterruptedException {
 
-        Node n1 = new NodeImp(new NodeIdentifier("1"));
-        Node n2 = new NodeImp(new NodeIdentifier("2"));
-        Node n3 = new NodeImp(new NodeIdentifier("3"));
-        Node n4 = new NodeImp(new NodeIdentifier("4"));
-        Node n5 = new NodeImp(new NodeIdentifier("5"));
+        Node n1 = new NetworkNode(new NodeIdentifier("1"));
+        Node n2 = new NetworkNode(new NodeIdentifier("2"));
+        Node n3 = new NetworkNode(new NodeIdentifier("3"));
+        Node n4 = new NetworkNode(new NodeIdentifier("4"));
+        Node n5 = new NetworkNode(new NodeIdentifier("5"));
 
         connectNodes(n1, n2);
         connectNodes(n2, n3);
@@ -57,7 +57,7 @@ public class App5 {
                 
                 Node n5 = null;
                 try {
-                    n5 = new NodeImp(new NodeIdentifier("5"));
+                    n5 = new NetworkNode(new NodeIdentifier("5"));
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

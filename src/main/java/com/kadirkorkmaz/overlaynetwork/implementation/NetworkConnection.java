@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq.common.implementations;
+package com.kadirkorkmaz.overlaynetwork.implementation;
 
 import com.google.gson.Gson;
-import com.kadirkorkmaz.rabbitmq.common.Connection;
-import com.kadirkorkmaz.rabbitmq.common.Message;
-import com.kadirkorkmaz.rabbitmq.common.MessageListener;
-import com.kadirkorkmaz.rabbitmq.connector.RabbitMQConnector;
+import com.kadirkorkmaz.overlaynetwork.common.Connection;
+import com.kadirkorkmaz.overlaynetwork.common.Message;
+import com.kadirkorkmaz.overlaynetwork.common.MessageListener;
+import com.kadirkorkmaz.overlaynetwork.connector.RabbitMQConnector;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;

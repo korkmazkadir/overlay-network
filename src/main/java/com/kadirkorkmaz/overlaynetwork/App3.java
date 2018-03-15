@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.rabbitmq;
+package com.kadirkorkmaz.overlaynetwork;
 
-import com.kadirkorkmaz.rabbitmq.common.Node;
-import com.kadirkorkmaz.rabbitmq.common.implementations.NodeIdentifier;
-import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTable;
-import com.kadirkorkmaz.rabbitmq.common.implementations.RoutingTableEntry;
-import com.kadirkorkmaz.rabbitmq.node.NodeImp;
+import com.kadirkorkmaz.overlaynetwork.common.Node;
+import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
+import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTableEntry;
+import com.kadirkorkmaz.overlaynetwork.node.NetworkNode;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class App3 {
 
         List<Node> nodes = new LinkedList<>();
         for (i = 0; i < numberOfNodes; i++) {
-            nodes.add(new NodeImp(new NodeIdentifier(i.toString())));
+            nodes.add(new NetworkNode(new NodeIdentifier(i.toString())));
         }
 
         for (i = 0; i < numberOfNodes; i++) {
