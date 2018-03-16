@@ -14,6 +14,7 @@ import com.kadirkorkmaz.overlaynetwork.implementation.NetworkConnection;
 import com.kadirkorkmaz.overlaynetwork.implementation.NetworkMessage;
 import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
+import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import com.kadirkorkmaz.overlaynetwork.router.DynamicRouter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,10 +31,23 @@ import java.util.logging.Logger;
  */
 public class NetworkNode implements Node {
 
-    private final NodeIdentifier id;
-    private final Connection incommingConnection;
-    private final List<Connection> connections;
-    private final DynamicRouter router;
+    protected NodeIdentifier id;
+    protected Connection incommingConnection;
+    protected final List<Connection> connections;
+    protected DynamicRouter router;
+    protected final Statistic statistics;
+
+    protected NetworkNode(){
+        this.connections = Collections.synchronizedList(new ArrayList());
+        statistics = new Statistic();
+    }
+
+    public void initilize() throws IOException, TimeoutException {
+        incommingConnection = new NetworkConnection(ConnectionType.INCOMMING_CONNECTION, id);
+        router = new DynamicRouter(this);
+        incommingConnection.openConnection();
+        incommingConnection.addIncommingMessageListener(router);
+    }
 
     public NetworkNode(NodeIdentifier id) throws IOException, TimeoutException {
         this.id = id;
@@ -42,6 +56,7 @@ public class NetworkNode implements Node {
         this.connections = Collections.synchronizedList(new ArrayList());
         router = new DynamicRouter(this);
         incommingConnection.addIncommingMessageListener(router);
+        statistics = new Statistic();
     }
 
     @Override
