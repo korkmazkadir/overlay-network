@@ -8,6 +8,8 @@ package com.kadirkorkmaz.overlaynetwork.common;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -35,5 +37,8 @@ public interface NodeRegistry extends Remote {
 
     /*Returns Statistics of a node*/
     public Statistic getStatistics(String nodeId) throws RemoteException;
+
+    /*Returns all the connections between nodes*/
+    public Map<String, List<String>> getTopology() throws RemoteException;
 
 }

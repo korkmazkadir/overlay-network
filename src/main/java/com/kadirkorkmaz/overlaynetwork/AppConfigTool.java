@@ -6,12 +6,20 @@
 package com.kadirkorkmaz.overlaynetwork;
 
 import com.kadirkorkmaz.overlaynetwork.common.NodeRegistry;
+import com.kadirkorkmaz.overlaynetwork.topology.GraphDrawer;
+import com.kadirkorkmaz.overlaynetwork.topology.GraphNode;
+import com.kadirkorkmaz.overlaynetwork.topology.imageviewer.ImageViewer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -24,7 +32,7 @@ public class AppConfigTool {
     private static String[] inputTokes = new String[10];
     private static String commandDelimeter = " ";
 
-    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit"};
+    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology"};
 
     private static NodeRegistry nodeRegistry;
 
@@ -40,6 +48,7 @@ public class AppConfigTool {
         System.out.println("send [source] [destination] [message] :   Send message from source to destination");
         System.out.println("help :   Provides help");
         System.out.println("exit :   Exit");
+        System.out.println("topology  :   Shows topology of the network");
     }
 
     private static String getUserInput() throws IOException {
@@ -52,7 +61,7 @@ public class AppConfigTool {
         inputTokes = userInput.split(commandDelimeter);
     }
 
-    private static void processUserInput() throws RemoteException {
+    private static void processUserInput() throws RemoteException, IOException {
         String command = inputTokes[0].trim().toLowerCase();
         if (command.isEmpty()) {
             return;
@@ -87,12 +96,23 @@ public class AppConfigTool {
             }
 
             nodeRegistry.sendMessage(nodeId1, nodeId2, message);
-            
+
         } else if (command.equals(availableCommands[4])) {
             printCommands();
         } else if (command.equals(availableCommands[5])) {
             System.out.println("Closing...");
             System.exit(0);
+        } else if (command.equals(availableCommands[6])) {
+            System.out.println("Creating topology");
+            Map<String, List<String>> topology = nodeRegistry.getTopology();
+            Set<String> nodes = topology.keySet();
+            List<GraphNode> graphTopology = new ArrayList<>(topology.size());
+            for (String node : nodes) {
+                graphTopology.add(new GraphNode(node, new LinkedHashSet<>(topology.get(node))));
+            }
+            String outputFilePath = GraphDrawer.Draw(graphTopology);
+            ImageViewer viewer = new ImageViewer();
+            viewer.view(outputFilePath);
         }
 
     }
@@ -100,7 +120,7 @@ public class AppConfigTool {
     public static void main(String[] args) {
 
         try {
-            
+
             Registry registry = LocateRegistry.getRegistry(2020);
             nodeRegistry = (NodeRegistry) registry.lookup("node-registry");
 

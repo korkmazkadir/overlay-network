@@ -9,6 +9,9 @@ import com.kadirkorkmaz.overlaynetwork.common.NodeRegistry;
 import com.kadirkorkmaz.overlaynetwork.common.RemoteNode;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -100,6 +103,18 @@ public class NodeRegistryService implements NodeRegistry {
             node = nodeMap.get(nodeId);
         }
         return node.getStatistics();
+    }
+
+    @Override
+    public Map<String, List<String>> getTopology() throws RemoteException {
+        Map<String, List<String>> topology = new LinkedHashMap<>();
+        synchronized (nodeMap) {
+            Set<String> nodes = nodeMap.keySet();
+            for (String node : nodes) {
+                topology.put(node, Arrays.asList(nodeMap.get(node).getConnectedNodeIds()));
+            }
+        }
+        return topology;
     }
 
 }
