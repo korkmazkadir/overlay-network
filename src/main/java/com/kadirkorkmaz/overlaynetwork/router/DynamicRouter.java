@@ -109,12 +109,15 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
         return null;
     }
 
+    
     @Override
     public void notifyMessage(Message message) {
 
+        //Health Check message means that node directly connected to current node
         if (message.getType() == MessageType.HEALT_CHECK) {
             String key = message.getSender().getNodeId();
-            if (nodeIdToTableEntryMap.containsKey(key) == false) {
+            //If directly connected host sending firstime data or it connected recently to this node
+            if (nodeIdToTableEntryMap.containsKey(key) == false || nodeIdToTableEntryMap.get(key).getCost() > LINK_COST ) {
                 RoutingTableEntry routingEntry = new RoutingTableEntry(message.getSender(), message.getSender(), LINK_COST);
                 nodeIdToTableEntryMap.put(key, routingEntry);
 
