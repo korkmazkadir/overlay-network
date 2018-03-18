@@ -64,11 +64,11 @@ public class GraphDrawer {
     }
 
     public static String Draw(List<GraphNode> graphNodes) throws IOException {
-        
+
         for (GraphNode graphNode : graphNodes) {
             System.out.println(graphNode);
         }
-        
+
         List<Graph> graphs = new LinkedList<>();
         removeDublicates(graphNodes);
 
@@ -87,9 +87,9 @@ public class GraphDrawer {
 
         Graph global = graph().with(listToArray(graphs));
         //Graph global = graph().with(node("a").link(node("b")));
-        
+
         String outputFilePath = "topology/" + getFileName() + ".png";
-        Graphviz.fromGraph(global).width(1000).height(700).render(Format.PNG).toFile(new File(  outputFilePath ));
+        Graphviz.fromGraph(global).width(1000).height(700).render(Format.PNG).toFile(new File(outputFilePath));
         return outputFilePath;
     }
 

@@ -5,6 +5,7 @@
  */
 package com.kadirkorkmaz.overlaynetwork.common;
 
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 
 /**
@@ -13,7 +14,7 @@ import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
  */
 public interface Router {
 
-    public void routeMessage(Message message);
+    public Acknowledgement routeMessage(Message message);
     
     public RoutingTable getRoutingTable();
     

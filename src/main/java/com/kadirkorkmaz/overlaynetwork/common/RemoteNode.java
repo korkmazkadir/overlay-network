@@ -5,6 +5,7 @@
  */
 package com.kadirkorkmaz.overlaynetwork.common;
 
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.rmi.Remote;
@@ -32,6 +33,6 @@ public interface RemoteNode extends Remote {
 
     public void removeConnection(String nodeId) throws RemoteException;
     
-    public void sendMessage(String destinationNodeId, String message) throws RemoteException;
+    public Acknowledgement sendMessage(String destinationNodeId, String message) throws RemoteException;
 
 }

@@ -5,10 +5,21 @@
  */
 package com.kadirkorkmaz.overlaynetwork.implementation;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  *
  * @author Kadir Korkmaz
  */
-public enum MessageType {
-    HEALT_CHECK, ROUTING_TABLE, USER_DATA, ACK;
+public class MessageIdProvider {
+
+    private static AtomicLong id = new AtomicLong(0);
+
+    private MessageIdProvider() {
+    }
+
+    public static long GetNewId() {
+        return id.incrementAndGet();
+    }
+    
 }

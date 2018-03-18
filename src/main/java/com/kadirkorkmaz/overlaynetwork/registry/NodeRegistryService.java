@@ -7,6 +7,7 @@ package com.kadirkorkmaz.overlaynetwork.registry;
 
 import com.kadirkorkmaz.overlaynetwork.common.NodeRegistry;
 import com.kadirkorkmaz.overlaynetwork.common.RemoteNode;
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.rmi.RemoteException;
 import java.util.Arrays;
@@ -88,12 +89,12 @@ public class NodeRegistryService implements NodeRegistry {
     }
 
     @Override
-    public void sendMessage(String sourceNodeId, String destinationNodeId, String message) throws RemoteException {
+    public Acknowledgement sendMessage(String sourceNodeId, String destinationNodeId, String message) throws RemoteException {
         RemoteNode source;
         synchronized (nodeMap) {
             source = nodeMap.get(sourceNodeId);
         }
-        source.sendMessage(destinationNodeId, message);
+        return source.sendMessage(destinationNodeId, message);
     }
 
     @Override

@@ -7,6 +7,7 @@ package com.kadirkorkmaz.overlaynetwork.node;
 
 import com.kadirkorkmaz.overlaynetwork.common.Connection;
 import com.kadirkorkmaz.overlaynetwork.common.RemoteNode;
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
@@ -82,8 +83,8 @@ public class RemoteNetworkNode extends NetworkNode implements RemoteNode {
     }
 
     @Override
-    public void sendMessage(String destinationNodeId, String message) throws RemoteException {
-        this.sendMessage(new NodeIdentifier(destinationNodeId), message);
+    public Acknowledgement sendMessage(String destinationNodeId, String message) throws RemoteException {
+        return this.sendMessage(new NodeIdentifier(destinationNodeId), message);
     }
 
 }

@@ -11,9 +11,12 @@ import com.kadirkorkmaz.overlaynetwork.common.Message;
 import com.kadirkorkmaz.overlaynetwork.common.MessageListener;
 import com.kadirkorkmaz.overlaynetwork.common.Node;
 import com.kadirkorkmaz.overlaynetwork.common.Router;
+import com.kadirkorkmaz.overlaynetwork.implementation.AckStatus;
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.MessageType;
 import com.kadirkorkmaz.overlaynetwork.implementation.NetworkMessage;
 import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.implementation.ResponseWaiter;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTableEntry;
 import java.io.IOException;
@@ -23,6 +26,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -50,6 +54,8 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
 
     private final Lock routingTableLock;
 
+    private final Map<Long, ResponseWaiter<Acknowledgement>> reponseWaiterMap;
+
     public DynamicRouter(Node node) {
         this.node = node;
         routingTable = new RoutingTable(node.getIdentifier());
@@ -59,11 +65,19 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
         nodeIdToTableEntryMap = new ConcurrentHashMap<>(); // LinkedHashMap<>();
         healthCheckMessage = new NetworkMessage(MessageType.HEALT_CHECK, node.getIdentifier(), null, "I am here");
         routingTableLock = new ReentrantLock();
+        reponseWaiterMap = new LinkedHashMap<>();
     }
 
     @Override
-    public void routeMessage(Message message) {
+    public Acknowledgement routeMessage(Message message) {
+        ResponseWaiter<Acknowledgement> waiter = new ResponseWaiter<>();
+        reponseWaiterMap.put(message.getId(), waiter);
         notifyMessage(message);
+        waiter.waitForResponse(5, TimeUnit.SECONDS);
+        synchronized (reponseWaiterMap) {
+            reponseWaiterMap.remove(message.getId());
+        }
+        return waiter.getResponse();
     }
 
     @Override
@@ -109,7 +123,6 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
         return null;
     }
 
-    
     @Override
     public void notifyMessage(Message message) {
 
@@ -117,7 +130,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
         if (message.getType() == MessageType.HEALT_CHECK) {
             String key = message.getSender().getNodeId();
             //If directly connected host sending firstime data or it connected recently to this node
-            if (nodeIdToTableEntryMap.containsKey(key) == false || nodeIdToTableEntryMap.get(key).getCost() > LINK_COST ) {
+            if (nodeIdToTableEntryMap.containsKey(key) == false || nodeIdToTableEntryMap.get(key).getCost() > LINK_COST) {
                 RoutingTableEntry routingEntry = new RoutingTableEntry(message.getSender(), message.getSender(), LINK_COST);
                 nodeIdToTableEntryMap.put(key, routingEntry);
 
@@ -177,7 +190,8 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
 
         }
 
-        if (message.getType() == MessageType.USER_DATA) {
+        if (message.getType() == MessageType.USER_DATA || message.getType() == MessageType.ACK) {
+
             if (message.getReceiver().equals(node.getIdentifier()) == false) {
 
                 System.out.println("(Routing) " + node.getIdentifier() + " --> " + message);
@@ -185,22 +199,37 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
 
                 if (entry == null) {
                     System.out.println("Opps table entry is null :(");
+                    sendAck(false, message);
                     return;
                 }
 
                 Connection connection = findConnectionById(entry.getOverLinkNodeId());
                 if (connection != null) {
                     try {
+                        message.addToPath(node.getIdentifier().getNodeId());
                         connection.sendMessage(message);
                     } catch (IOException ex) {
                         Logger.getLogger(DynamicRouter.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
                     System.out.println("Opss, No connection :( " + entry.getOverLinkNodeId());
+                    sendAck(false, message);
                 }
 
             } else {
                 System.out.println("*(Arrived) " + node.getIdentifier() + " --> " + message.getBody());
+                System.out.println("Path : " + message.getPath());
+                if (message.getType() == MessageType.ACK) {
+                    Acknowledgement ack = gson.fromJson(message.getBody(), Acknowledgement.class);
+                    ResponseWaiter<Acknowledgement> waiter = reponseWaiterMap.get(ack.getId());
+                    synchronized (reponseWaiterMap) {
+                        if (waiter != null) {
+                            waiter.setResponse(ack);
+                        }
+                    }
+                } else {
+                    sendAck(true, message);
+                }
             }
         }
 
@@ -209,6 +238,22 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
     @Override
     public void run() {
         sendMessageToOtherConnections(healthCheckMessage);
+    }
+
+    private void sendAck(boolean isSuccessful, Message message) {
+
+        System.out.println("Sending ack");
+
+        Acknowledgement ack = null;
+        if (isSuccessful) {
+            ack = new Acknowledgement(message.getId(), AckStatus.SUCCESS, node.getIdentifier().getNodeId(),  message.getPath().toArray(new String[message.getPath().size()]) );
+        } else {
+            ack = new Acknowledgement(message.getId(), AckStatus.UNREACHABLE_NODE, node.getIdentifier().getNodeId(), message.getPath().toArray(new String[message.getPath().size()]));
+        }
+
+        Message ackMessage = new NetworkMessage(MessageType.ACK, node.getIdentifier(), message.getSender(), gson.toJson(ack));
+        notifyMessage(ackMessage);
+
     }
 
 }

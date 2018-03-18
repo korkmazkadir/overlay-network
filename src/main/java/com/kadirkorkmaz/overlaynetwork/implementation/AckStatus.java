@@ -5,10 +5,12 @@
  */
 package com.kadirkorkmaz.overlaynetwork.implementation;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Kadir Korkmaz
  */
-public enum MessageType {
-    HEALT_CHECK, ROUTING_TABLE, USER_DATA, ACK;
+public enum AckStatus implements Serializable{
+    SUCCESS, UNREACHABLE_NODE;
 }

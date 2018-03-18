@@ -7,6 +7,7 @@ package com.kadirkorkmaz.overlaynetwork.common;
 
 import com.kadirkorkmaz.overlaynetwork.implementation.MessageType;
 import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
+import java.util.List;
 
 /**
  *
@@ -14,6 +15,8 @@ import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
  */
 public interface Message {
 
+    public long getId();
+    
     public MessageType getType();
 
     public String getBody();
@@ -23,5 +26,9 @@ public interface Message {
     public NodeIdentifier getSender();
 
     public NodeIdentifier getReceiver();
+    
+    public void addToPath(String pathElement);
+    
+    public List<String> getPath();
 
 }

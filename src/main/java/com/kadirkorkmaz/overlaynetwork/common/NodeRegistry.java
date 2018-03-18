@@ -5,6 +5,7 @@
  */
 package com.kadirkorkmaz.overlaynetwork.common;
 
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -33,7 +34,7 @@ public interface NodeRegistry extends Remote {
     public boolean removeConnectionBetween(String nodeId1, String nodeId2) throws RemoteException;
 
     /*Sends message from source node to destination node over the overlay network*/
-    public void sendMessage(String sourceNodeId, String destinationNodeId, String message) throws RemoteException;
+    public Acknowledgement sendMessage(String sourceNodeId, String destinationNodeId, String message) throws RemoteException;
 
     /*Returns Statistics of a node*/
     public Statistic getStatistics(String nodeId) throws RemoteException;

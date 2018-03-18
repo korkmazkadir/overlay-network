@@ -5,6 +5,7 @@
  */
 package com.kadirkorkmaz.overlaynetwork.common;
 
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 import java.util.List;
@@ -21,7 +22,7 @@ public interface Node {
 
     public void handleMessage(Message message);
     
-    public void sendMessage(NodeIdentifier destination, String messageBody);
+    public Acknowledgement sendMessage(NodeIdentifier destination, String messageBody);
     
     public void addConnection(NodeIdentifier nodeId);
     

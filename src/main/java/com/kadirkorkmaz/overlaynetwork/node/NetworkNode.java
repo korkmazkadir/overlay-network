@@ -8,6 +8,7 @@ package com.kadirkorkmaz.overlaynetwork.node;
 import com.kadirkorkmaz.overlaynetwork.common.Connection;
 import com.kadirkorkmaz.overlaynetwork.common.Message;
 import com.kadirkorkmaz.overlaynetwork.common.Node;
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.ConnectionType;
 import com.kadirkorkmaz.overlaynetwork.implementation.MessageType;
 import com.kadirkorkmaz.overlaynetwork.implementation.NetworkConnection;
@@ -47,6 +48,7 @@ public class NetworkNode implements Node {
         router = new DynamicRouter(this);
         incommingConnection.openConnection();
         incommingConnection.addIncommingMessageListener(router);
+        System.out.println("Constructor-1");
     }
 
     public NetworkNode(NodeIdentifier id) throws IOException, TimeoutException {
@@ -57,6 +59,7 @@ public class NetworkNode implements Node {
         router = new DynamicRouter(this);
         incommingConnection.addIncommingMessageListener(router);
         statistics = new Statistic();
+        System.out.println("Constructor-2");
     }
 
     @Override
@@ -75,9 +78,10 @@ public class NetworkNode implements Node {
     }
 
     @Override
-    public void sendMessage(NodeIdentifier destination, String messageBody) {
+    public Acknowledgement sendMessage(NodeIdentifier destination, String messageBody) {
         Message message = new NetworkMessage(MessageType.USER_DATA, this.id, destination, messageBody);
-        router.routeMessage(message);
+        Acknowledgement ack = router.routeMessage(message);
+        return ack;
     }
 
     @Override

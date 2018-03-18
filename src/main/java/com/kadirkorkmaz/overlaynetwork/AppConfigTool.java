@@ -6,6 +6,7 @@
 package com.kadirkorkmaz.overlaynetwork;
 
 import com.kadirkorkmaz.overlaynetwork.common.NodeRegistry;
+import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.topology.GraphDrawer;
 import com.kadirkorkmaz.overlaynetwork.topology.GraphNode;
 import com.kadirkorkmaz.overlaynetwork.topology.imageviewer.ImageViewer;
@@ -95,7 +96,8 @@ public class AppConfigTool {
                 return;
             }
 
-            nodeRegistry.sendMessage(nodeId1, nodeId2, message);
+            Acknowledgement ack = nodeRegistry.sendMessage(nodeId1, nodeId2, message);
+            System.out.println("Ack : " + ack);
 
         } else if (command.equals(availableCommands[4])) {
             printCommands();
