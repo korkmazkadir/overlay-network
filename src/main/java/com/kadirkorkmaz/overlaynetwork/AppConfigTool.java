@@ -10,7 +10,9 @@ import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.topology.GraphDrawer;
 import com.kadirkorkmaz.overlaynetwork.topology.GraphNode;
 import com.kadirkorkmaz.overlaynetwork.topology.imageviewer.ImageViewer;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.rmi.RemoteException;
@@ -20,7 +22,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -34,7 +38,7 @@ public class AppConfigTool {
     private static int tokenSize = 0;
     private static String commandDelimeter = " ";
 
-    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology", "kill"};
+    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology", "kill", "clear"};
 
     private static NodeRegistry nodeRegistry;
 
@@ -51,7 +55,8 @@ public class AppConfigTool {
         System.out.println("help :   Provides help");
         System.out.println("exit :   Exit");
         System.out.println("topology  :   Shows topology of the network");
-        System.out.println("kill [nodeId] [-all]  :  :   Shows topology of the network");
+        System.out.println("kill [nodeId] [-all]    :   Shows topology of the network");
+        System.out.println("clear  :   clears screen");
     }
 
     private static String getUserInput() throws IOException {
@@ -122,10 +127,10 @@ public class AppConfigTool {
             String nodeId2 = inputTokes[2].trim();
             String message = "";
 
-            for(int i = 3 ; i < tokenSize ; i++){
+            for (int i = 3; i < tokenSize; i++) {
                 message = message + " " + inputTokes[i];
             }
-            
+
             if (nodeId1.isEmpty() || nodeId2.isEmpty() || message.isEmpty()) {
                 System.out.println("Error : node id or message cannot be empty");
                 return;
@@ -150,15 +155,18 @@ public class AppConfigTool {
             String outputFilePath = GraphDrawer.Draw(graphTopology);
             ImageViewer viewer = new ImageViewer();
             viewer.view(outputFilePath);
-        }else if (command.equals(availableCommands[7])) {
+        } else if (command.equals(availableCommands[7])) {
             String nodeId = inputTokes[1].trim();
-            if(nodeId.equals("-all")){
-                boolean result =  nodeRegistry.killAll();
+            if (nodeId.equals("-all")) {
+                boolean result = nodeRegistry.killAll();
                 System.out.println("Killing all nodes, result = " + result);
-            }else{
-                boolean result =  nodeRegistry.killNode(nodeId);
+            } else {
+                boolean result = nodeRegistry.killNode(nodeId);
                 System.out.println("Killing " + nodeId + ", result = " + result);
             }
+        } else if (command.equals(availableCommands[7])) {
+            System.out.print("\033[H\033[2J");
+            System.out.flush();
         }
 
     }
