@@ -32,7 +32,11 @@ public class NetworkConnection implements Connection {
     private Channel channel;
     private final List<MessageListener> incommingMessagelisteners;
     private final List<MessageListener> outgoingMessagelisteners;
-    
+
+    private final static AMQP.BasicProperties MESSAGE_PROPERTY = new AMQP.BasicProperties.Builder()
+            .expiration("4000")
+            .build();
+
     private static final Gson gson = new Gson();
 
     public NetworkConnection(ConnectionType type, NodeIdentifier nodeId) {
@@ -42,7 +46,6 @@ public class NetworkConnection implements Connection {
         outgoingMessagelisteners = new ArrayList<>();
     }
 
-    
     private void startListening() throws IOException {
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
@@ -51,9 +54,8 @@ public class NetworkConnection implements Connection {
                     throws IOException {
 
                 String messageJson = new String(body, "UTF-8");
-                
+
                 //System.out.println( nodeId + " --> " + messageJson);
-                
                 Message message = gson.fromJson(messageJson, NetworkMessage.class);
                 for (MessageListener listener : incommingMessagelisteners) {
                     listener.notifyMessage(message);
@@ -71,6 +73,8 @@ public class NetworkConnection implements Connection {
         if (type == ConnectionType.INCOMMING_CONNECTION) {
             channel.queueDeclare(nodeId.getNodeId(), false, false, false, null);
             startListening();
+        } else {
+            channel.queueDeclare(nodeId.getNodeId(), false, false, false, null);
         }
     }
 
@@ -82,8 +86,7 @@ public class NetworkConnection implements Connection {
     @Override
     public void sendMessage(Message message) throws IOException {
         if (type == ConnectionType.OUT_GOING_CONNECTION) {
-            channel.queueDeclare(nodeId.getNodeId(), false, false, false, null);
-            channel.basicPublish("", nodeId.getNodeId(), null, gson.toJson(message).getBytes());
+            channel.basicPublish("", nodeId.getNodeId(), MESSAGE_PROPERTY, gson.toJson(message).getBytes());
         }
     }
 
@@ -112,5 +115,5 @@ public class NetworkConnection implements Connection {
     public String toString() {
         return "NetworkConnection{" + "type=" + type + ", nodeId=" + nodeId + '}';
     }
-    
+
 }

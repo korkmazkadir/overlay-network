@@ -94,7 +94,11 @@ public class NodeRegistryService implements NodeRegistry {
         synchronized (nodeMap) {
             source = nodeMap.get(sourceNodeId);
         }
-        return source.sendMessage(destinationNodeId, message);
+        if(source != null){
+            return source.sendMessage(destinationNodeId, message);
+        }
+        System.out.println("Send message node is null : " + sourceNodeId);
+        return null;
     }
 
     @Override

@@ -79,7 +79,8 @@ public class RemoteNetworkNode extends NetworkNode implements RemoteNode {
 
     @Override
     public void removeConnection(String nodeId) throws RemoteException {
-        this.removeConnection(new NodeIdentifier(nodeId));
+        System.out.println("Removing connectin with " + nodeId);
+        super.removeConnection(new NodeIdentifier(nodeId));
     }
 
     @Override

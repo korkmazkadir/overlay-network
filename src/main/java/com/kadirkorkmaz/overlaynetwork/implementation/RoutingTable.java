@@ -7,7 +7,6 @@ package com.kadirkorkmaz.overlaynetwork.implementation;
 
 import com.google.gson.internal.LinkedHashTreeMap;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +35,13 @@ public class RoutingTable {
     
     public void addEntry(RoutingTableEntry entry){
         entryList.put(entry.getDestinationNodeId().getNodeId(),entry);
+    }
+    
+    public void updateCost(String nodeId, int cost){
+        if(entryList.containsKey(nodeId)){
+            System.out.println( nodeId + " new cost " + cost);
+            entryList.get(nodeId).setCost(cost);
+        }
     }
 
 }

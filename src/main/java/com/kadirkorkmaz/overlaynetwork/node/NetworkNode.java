@@ -38,7 +38,7 @@ public class NetworkNode implements Node {
     protected DynamicRouter router;
     protected final Statistic statistics;
 
-    protected NetworkNode(){
+    protected NetworkNode() {
         this.connections = Collections.synchronizedList(new ArrayList());
         statistics = new Statistic();
     }
@@ -100,19 +100,17 @@ public class NetworkNode implements Node {
 
     @Override
     public void removeConnection(NodeIdentifier nodeId) {
-
         synchronized (connections) {
             for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext();) {
                 Connection connection = iterator.next();
-                if (connection.getNodeId().equals(id)) {
+                if (connection.getNodeId().equals(nodeId)) {
                     try {
                         connection.closeConnection();
-                    } catch (IOException ex) {
-                        Logger.getLogger(NetworkNode.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (TimeoutException ex) {
-                        Logger.getLogger(NetworkNode.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException | TimeoutException ex) {
+                        ex.printStackTrace();
                     }
                     iterator.remove();
+                    System.out.println("Connection removed with node : " + nodeId.getNodeId());
                 }
             }
         }

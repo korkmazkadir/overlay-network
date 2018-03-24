@@ -31,6 +31,7 @@ public class AppConfigTool {
     private static String URL = "127.0.0.1";
 
     private static String[] inputTokes = new String[10];
+    private static int tokenSize = 0;
     private static String commandDelimeter = " ";
 
     private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology"};
@@ -58,8 +59,9 @@ public class AppConfigTool {
     }
 
     private static void parseUserInput(String userInput) {
-        userInput.trim();
-        inputTokes = userInput.split(commandDelimeter);
+        String trimedInput = userInput.trim();
+        inputTokes = trimedInput.split(commandDelimeter);
+        tokenSize = inputTokes.length;
     }
 
     private static void processUserInput() throws RemoteException, IOException {
@@ -75,6 +77,12 @@ public class AppConfigTool {
                 System.out.println(registeredNodeId);
             }
         } else if (command.equals(availableCommands[1])) {
+
+            if (tokenSize != 3) {
+                System.err.println("Error : connect accepts 2 parameter");
+                return;
+            }
+
             String nodeId1 = inputTokes[1].trim();
             String nodeId2 = inputTokes[2].trim();
 
@@ -85,12 +93,38 @@ public class AppConfigTool {
 
             boolean result = nodeRegistry.addConnectionBetween(nodeId1, nodeId2);
             System.out.println("Result : " + result);
-        } else if (command.equals(availableCommands[3])) {
+        } else if (command.equals(availableCommands[2])) {
+
+            if (tokenSize != 3) {
+                System.err.println("disconnect : connect accepts 2 parameter");
+                return;
+            }
 
             String nodeId1 = inputTokes[1].trim();
             String nodeId2 = inputTokes[2].trim();
-            String message = inputTokes[3].trim();
 
+            if (nodeId1.isEmpty() || nodeId2.isEmpty()) {
+                System.out.println("Error : node id cannot be empty");
+                return;
+            }
+
+            boolean result = nodeRegistry.removeConnectionBetween(nodeId1, nodeId2);
+            System.out.println("Result : " + result);
+        } else if (command.equals(availableCommands[3])) {
+
+            if (tokenSize < 4) {
+                System.err.println("Error : send accepts 4 parameter");
+                return;
+            }
+
+            String nodeId1 = inputTokes[1].trim();
+            String nodeId2 = inputTokes[2].trim();
+            String message = "";
+
+            for(int i = 3 ; i < tokenSize ; i++){
+                message = message + " " + inputTokes[i];
+            }
+            
             if (nodeId1.isEmpty() || nodeId2.isEmpty() || message.isEmpty()) {
                 System.out.println("Error : node id or message cannot be empty");
                 return;

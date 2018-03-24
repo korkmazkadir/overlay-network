@@ -20,6 +20,7 @@ import com.kadirkorkmaz.overlaynetwork.implementation.ResponseWaiter;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTableEntry;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
 
     private final static long TIMER_PERIOD_MS = 1000;
     private final static long DELAY_MS = 1000;
+    private final static int HEALTH_CHECK_PERIOD = 3;
+    private final static int MAX_LINK_COST = 1000;
     private final Timer timer;
 
     private final static int LINK_COST = 1;
@@ -56,6 +59,10 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
 
     private final Map<Long, ResponseWaiter<Acknowledgement>> reponseWaiterMap;
 
+    private final Map<String, Long> lastHealthCheckTimeMap;
+
+    private long healthCheckCount = 0L;
+
     public DynamicRouter(Node node) {
         this.node = node;
         routingTable = new RoutingTable(node.getIdentifier());
@@ -66,6 +73,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
         healthCheckMessage = new NetworkMessage(MessageType.HEALT_CHECK, node.getIdentifier(), null, "I am here");
         routingTableLock = new ReentrantLock();
         reponseWaiterMap = new LinkedHashMap<>();
+        lastHealthCheckTimeMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -123,6 +131,55 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
         return null;
     }
 
+    private void setUnreachableNodeCost(String overLinkNodeId) {
+        routingTableLock.lock();
+        try {
+            List<RoutingTableEntry> entries = routingTable.getEntryList();
+            for (RoutingTableEntry entry : entries) {
+                if (entry.getOverLinkNodeId().getNodeId().equals(overLinkNodeId)) {
+                    entry.setCost(MAX_LINK_COST);
+                }
+            }
+        } finally {
+            routingTableLock.unlock();
+        }
+    }
+
+    private void updateLastHealthCheckInfo(String nodeId) {
+        synchronized (lastHealthCheckTimeMap) {
+            lastHealthCheckTimeMap.put(nodeId, System.currentTimeMillis());
+        }
+    }
+
+    private void removeUnresponsiveConnections() {
+        synchronized (lastHealthCheckTimeMap) {
+            boolean isTableUpdated = false;
+            //If we didnot get 3 times health check than remove that :)
+            long lastAllowedTime = System.currentTimeMillis() - (DELAY_MS * HEALTH_CHECK_PERIOD);
+            for (Iterator<Map.Entry<String, Long>> it = lastHealthCheckTimeMap.entrySet().iterator(); it.hasNext();) {
+                Map.Entry<String, Long> entry = it.next();
+                if (entry.getValue() < lastAllowedTime) {
+                    //Remove from connections list of the node
+                    String nodeId = entry.getKey();
+                    NodeIdentifier identifier = new NodeIdentifier(nodeId);
+                    node.removeConnection(identifier);
+                    //Set entry cost value to highest value
+                    synchronized (routingTableLock) {
+                        routingTable.updateCost(nodeId, MAX_LINK_COST);
+                        setUnreachableNodeCost(nodeId);
+                        isTableUpdated = true;
+                    }
+                    it.remove();
+                }
+            }
+
+            if (isTableUpdated) {
+                sendRoutingTableToOthers();
+            }
+
+        }
+    }
+
     @Override
     public void notifyMessage(Message message) {
 
@@ -144,6 +201,8 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
                 System.out.println(node.getIdentifier() + " --> " + routingEntry);
                 sendRoutingTableToOthers();
             }
+
+            updateLastHealthCheckInfo(key);
         }
 
         if (message.getType() == MessageType.ROUTING_TABLE) {
@@ -158,17 +217,42 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
                 }
 
                 if (nodeIdToTableEntryMap.containsKey(entry.getDestinationNodeId().getNodeId())) {
-                    RoutingTableEntry routingTableEntry = nodeIdToTableEntryMap.get(entry.getDestinationNodeId().getNodeId());
+
+                    RoutingTableEntry currentEntry = nodeIdToTableEntryMap.get(entry.getDestinationNodeId().getNodeId());
+
+                    //Lost connection case
+                    if (entry.getCost() == MAX_LINK_COST && currentEntry.getOverLinkNodeId().equals(message.getSender())
+                            && currentEntry.getCost() != entry.getCost()) {
+                        System.out.println("--->1");
+                        currentEntry.setCost(entry.getCost());
+                        sendOther = true;
+                        continue;
+                    } else if (entry.getCost() == MAX_LINK_COST && currentEntry.getOverLinkNodeId().equals(message.getSender()) == false) {
+                        sendOther = true;
+                    }
+
                     //If we have already this node but new way is better than use the new way
-                    if (routingTableEntry.getCost() <= (entry.getCost() + LINK_COST)) {
+                    // Cost can be int max and intmax + 1 smaller than zero :( dangeros
+                    if (currentEntry.getCost() <= (entry.getCost() + LINK_COST)) {
                         //System.out.println("Cost is smaller " + routingTableEntry.getCost() + " -- " + (entry.getCost() + LINK_COST));
                         continue;
                     }
                 }
 
+                //Disconnected node do not add but send your information to others
+//                if(entry.getCost() == Integer.MAX_VALUE){
+//                    System.out.println("--->2");
+//                    sendOther = true;
+//                    continue;
+//                }
                 //Cost smaller or no entry on table so add this entry to table
                 entry.setOverLinkNodeId(message.getSender());
-                entry.setCost(entry.getCost() + LINK_COST);
+
+                if (entry.getCost() != MAX_LINK_COST) {
+                    entry.setCost(entry.getCost() + LINK_COST);
+                } else {
+                    entry.setCost(entry.getCost());
+                }
 
                 String nodeId = entry.getDestinationNodeId().getNodeId();
                 nodeIdToTableEntryMap.put(nodeId, entry);
@@ -237,7 +321,11 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
 
     @Override
     public void run() {
+        healthCheckCount++;
         sendMessageToOtherConnections(healthCheckMessage);
+        if (healthCheckCount % HEALTH_CHECK_PERIOD == 0) {
+            removeUnresponsiveConnections();
+        }
     }
 
     private void sendAck(boolean isSuccessful, Message message) {
@@ -246,7 +334,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
 
         Acknowledgement ack = null;
         if (isSuccessful) {
-            ack = new Acknowledgement(message.getId(), AckStatus.SUCCESS, node.getIdentifier().getNodeId(),  message.getPath().toArray(new String[message.getPath().size()]) );
+            ack = new Acknowledgement(message.getId(), AckStatus.SUCCESS, node.getIdentifier().getNodeId(), message.getPath().toArray(new String[message.getPath().size()]));
         } else {
             ack = new Acknowledgement(message.getId(), AckStatus.UNREACHABLE_NODE, node.getIdentifier().getNodeId(), message.getPath().toArray(new String[message.getPath().size()]));
         }
