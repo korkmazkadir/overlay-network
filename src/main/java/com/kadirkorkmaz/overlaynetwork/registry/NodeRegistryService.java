@@ -11,6 +11,7 @@ import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class NodeRegistryService implements NodeRegistry {
         synchronized (nodeMap) {
             source = nodeMap.get(sourceNodeId);
         }
-        if(source != null){
+        if (source != null) {
             return source.sendMessage(destinationNodeId, message);
         }
         System.out.println("Send message node is null : " + sourceNodeId);
@@ -120,6 +121,32 @@ public class NodeRegistryService implements NodeRegistry {
             }
         }
         return topology;
+    }
+
+    @Override
+    public boolean killNode(String nodeId) throws RemoteException {
+        synchronized (nodeMap) {
+            RemoteNode node = nodeMap.get(nodeId);
+            if (node != null) {
+                node.kill();
+                nodeMap.remove(nodeId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean killAll() throws RemoteException {
+        synchronized (nodeMap) {
+            Set<String> nodes = nodeMap.keySet();
+            for (String node : nodes) {
+                nodeMap.get(node).kill();
+            }
+            nodeMap.clear();
+            nodeIdMap.clear();
+        }
+        return true;
     }
 
 }

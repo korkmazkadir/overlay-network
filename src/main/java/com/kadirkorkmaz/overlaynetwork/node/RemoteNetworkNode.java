@@ -13,7 +13,11 @@ import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -86,6 +90,31 @@ public class RemoteNetworkNode extends NetworkNode implements RemoteNode {
     @Override
     public Acknowledgement sendMessage(String destinationNodeId, String message) throws RemoteException {
         return this.sendMessage(new NodeIdentifier(destinationNodeId), message);
+    }
+
+    @Override
+    public void kill() throws RemoteException {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    incommingConnection.closeConnection();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                System.out.println("Closing node " + id.getNodeId());
+                synchronized (connections) {
+                    for (Connection conn : connections) {
+                        try {
+                            conn.closeConnection();
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+                System.exit(0);
+            }
+        }, 1000);
     }
 
 }

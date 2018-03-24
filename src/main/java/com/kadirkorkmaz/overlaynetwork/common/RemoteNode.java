@@ -35,4 +35,6 @@ public interface RemoteNode extends Remote {
     
     public Acknowledgement sendMessage(String destinationNodeId, String message) throws RemoteException;
 
+    public void kill() throws RemoteException;
+    
 }

@@ -34,7 +34,7 @@ public class AppConfigTool {
     private static int tokenSize = 0;
     private static String commandDelimeter = " ";
 
-    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology"};
+    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology", "kill"};
 
     private static NodeRegistry nodeRegistry;
 
@@ -51,6 +51,7 @@ public class AppConfigTool {
         System.out.println("help :   Provides help");
         System.out.println("exit :   Exit");
         System.out.println("topology  :   Shows topology of the network");
+        System.out.println("kill [nodeId] [-all]  :  :   Shows topology of the network");
     }
 
     private static String getUserInput() throws IOException {
@@ -149,6 +150,15 @@ public class AppConfigTool {
             String outputFilePath = GraphDrawer.Draw(graphTopology);
             ImageViewer viewer = new ImageViewer();
             viewer.view(outputFilePath);
+        }else if (command.equals(availableCommands[7])) {
+            String nodeId = inputTokes[1].trim();
+            if(nodeId.equals("-all")){
+                boolean result =  nodeRegistry.killAll();
+                System.out.println("Killing all nodes, result = " + result);
+            }else{
+                boolean result =  nodeRegistry.killNode(nodeId);
+                System.out.println("Killing " + nodeId + ", result = " + result);
+            }
         }
 
     }

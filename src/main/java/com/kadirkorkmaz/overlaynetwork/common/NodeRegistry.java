@@ -42,4 +42,10 @@ public interface NodeRegistry extends Remote {
     /*Returns all the connections between nodes*/
     public Map<String, List<String>> getTopology() throws RemoteException;
 
+    /*Kills a node*/
+    public boolean killNode(String nodeId) throws RemoteException;
+    
+    /*Kills all the nodes*/
+    public boolean killAll() throws RemoteException;
+    
 }
