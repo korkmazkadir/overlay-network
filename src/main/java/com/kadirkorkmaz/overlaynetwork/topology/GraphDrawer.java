@@ -6,11 +6,14 @@
 package com.kadirkorkmaz.overlaynetwork.topology;
 
 import guru.nidi.graphviz.attribute.Shape;
+import guru.nidi.graphviz.attribute.Style;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.node;
 import guru.nidi.graphviz.model.Graph;
+import guru.nidi.graphviz.model.Label;
+import guru.nidi.graphviz.model.Link;
 import guru.nidi.graphviz.model.Node;
 import java.io.File;
 import java.io.IOException;
@@ -64,11 +67,6 @@ public class GraphDrawer {
     }
 
     public static String Draw(List<GraphNode> graphNodes) throws IOException {
-
-        for (GraphNode graphNode : graphNodes) {
-            System.out.println(graphNode);
-        }
-
         List<Graph> graphs = new LinkedList<>();
         removeDublicates(graphNodes);
 
@@ -84,6 +82,75 @@ public class GraphDrawer {
             }
             graphs.add(graph().with(nodes[0].link(nodes)));
         }
+
+        Graph global = graph().with(listToArray(graphs));
+        //Graph global = graph().with(node("a").link(node("b")));
+
+        String outputFilePath = "topology/" + getFileName() + ".png";
+        Graphviz.fromGraph(global).width(1000).height(700).render(Format.PNG).toFile(new File(outputFilePath));
+        return outputFilePath;
+    }
+
+    private static boolean isInArray(String[] elements, String elementToLook) {
+        for (String element : elements) {
+            if (elementToLook.equals(element)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String DrawPath(List<GraphNode> graphNodes, String[] messagePath) throws IOException {
+
+        List<Graph> graphs = new LinkedList<>();
+        removeDublicates(graphNodes);
+
+        int messagePathLength = messagePath.length;
+        Node[] messageNodes = new Node[messagePath.length];
+        for (int i = 0; i < messagePathLength; i++) {
+            String nodeName = messagePath[i];
+            messageNodes[i] = node(nodeName).with(Shape.CIRCLE);
+        }
+
+        List<Graph> pathGraps = new LinkedList<>();
+        for (int i = 0; i < messagePathLength; i++) {
+            String nodeName = messagePath[i];
+            Node n1 = node(nodeName).with(Shape.CIRCLE);
+            if (i + 1 < messagePathLength) {
+                String nodeName2 = messagePath[i + 1];
+                Node n2 = node(nodeName2).with(Shape.CIRCLE);
+                pathGraps.add(graph().directed().with(n1.link(Link.to(n2).with(Label.of(Integer.toString(i + 1)), guru.nidi.graphviz.attribute.Color.RED))));
+            }
+        }
+
+        for (GraphNode n : graphNodes) {
+            Set<String> connections = n.getConnections();
+            int size = connections.size();
+            Node[] nodes = new Node[size + 1];
+            String nodeName = n.getName();
+            nodes[0] = node(nodeName).with(Shape.CIRCLE);
+            int index = 1;
+
+            boolean isInPath = isInArray(messagePath, nodeName);
+
+            for (String connection : connections) {
+                if (isInPath && isInArray(messagePath, connection)) {
+                    continue;
+                }
+                nodes[index] = node(connection).with(Shape.CIRCLE);
+                index++;
+            }
+
+            Node[] newNodes = new Node[index];
+            for (int i = 0; i < index; i++) {
+                newNodes[i] = nodes[i];
+            }
+
+            graphs.add(graph().with(nodes[0].link(newNodes)));
+
+        }
+
+        graphs.addAll(0, pathGraps);
 
         Graph global = graph().with(listToArray(graphs));
         //Graph global = graph().with(node("a").link(node("b")));

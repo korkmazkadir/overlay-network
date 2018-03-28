@@ -139,6 +139,17 @@ public class AppConfigTool {
             Acknowledgement ack = nodeRegistry.sendMessage(nodeId1, nodeId2, message);
             System.out.println("Ack : " + ack);
 
+            Map<String, List<String>> topology = nodeRegistry.getTopology();
+            Set<String> nodes = topology.keySet();
+            List<GraphNode> graphTopology = new ArrayList<>(topology.size());
+            for (String node : nodes) {
+                graphTopology.add(new GraphNode(node, new LinkedHashSet<>(topology.get(node))));
+            }
+
+            String outputFilePath = GraphDrawer.DrawPath(graphTopology, ack.getMessagePath());
+            ImageViewer viewer = new ImageViewer();
+            viewer.view(outputFilePath);
+
         } else if (command.equals(availableCommands[4])) {
             printCommands();
         } else if (command.equals(availableCommands[5])) {
