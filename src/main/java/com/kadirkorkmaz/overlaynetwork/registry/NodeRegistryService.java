@@ -8,10 +8,10 @@ package com.kadirkorkmaz.overlaynetwork.registry;
 import com.kadirkorkmaz.overlaynetwork.common.NodeRegistry;
 import com.kadirkorkmaz.overlaynetwork.common.RemoteNode;
 import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
+import com.kadirkorkmaz.overlaynetwork.implementation.RandomTreeCreator;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.rmi.RemoteException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +27,12 @@ public class NodeRegistryService implements NodeRegistry {
 
     private final Map<String, AtomicInteger> nodeIdMap;
     private final Map<String, RemoteNode> nodeMap;
+    private final RandomTreeCreator randomTreeCreator;
 
     public NodeRegistryService() {
         this.nodeIdMap = new ConcurrentHashMap<>();
         this.nodeMap = new ConcurrentHashMap<>();
+        this.randomTreeCreator = new RandomTreeCreator();
     }
 
     @Override
@@ -44,6 +46,7 @@ public class NodeRegistryService implements NodeRegistry {
             String nodeId = prefix + "-" + idNumber;
             node.setId(nodeId);
             nodeMap.put(nodeId, node);
+            randomTreeCreator.addNode(node);
         }
     }
 
@@ -145,8 +148,35 @@ public class NodeRegistryService implements NodeRegistry {
             }
             nodeMap.clear();
             nodeIdMap.clear();
+            randomTreeCreator.removeAllNodes();
         }
         return true;
+    }
+
+    @Override
+    public Acknowledgement ringSendLeft(String sourceNodeId, String destinationNodeId, String message) throws RemoteException {
+        RemoteNode source;
+        synchronized (nodeMap) {
+            source = nodeMap.get(sourceNodeId);
+        }
+        if (source != null) {
+            return source.getRingOverlayNode().sendLeft(destinationNodeId, message);
+        }
+        System.out.println("Send left no node with name : " + sourceNodeId);
+        return null;
+    }
+
+    @Override
+    public Acknowledgement ringSendRight(String sourceNodeId, String destinationNodeId, String message) throws RemoteException {
+        RemoteNode source;
+        synchronized (nodeMap) {
+            source = nodeMap.get(sourceNodeId);
+        }
+        if (source != null) {
+            return source.getRingOverlayNode().sendRight(destinationNodeId, message);
+        }
+        System.out.println("Send right no node with name : " + sourceNodeId);
+        return null;
     }
 
 }

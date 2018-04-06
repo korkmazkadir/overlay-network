@@ -48,4 +48,10 @@ public interface NodeRegistry extends Remote {
     /*Kills all the nodes*/
     public boolean killAll() throws RemoteException;
     
+    /*Overlay ring send left*/
+    public Acknowledgement ringSendLeft(String sourceNodeId, String destinationNodeId, String message) throws RemoteException;
+
+    /*Overlay ring send right*/
+    public Acknowledgement ringSendRight(String sourceNodeId, String destinationNodeId, String message) throws RemoteException;
+    
 }

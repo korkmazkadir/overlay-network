@@ -22,6 +22,7 @@ import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTableEntry;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -45,7 +46,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
     
     private final static long TIMER_PERIOD_MS = 1000;
     private final static long DELAY_MS = 1000;
-    private final static int HEALTH_CHECK_PERIOD = 3;
+    private final static int HEALTH_CHECK_PERIOD = 10;
     private final static int MAX_LINK_COST = 1000;
     private final Timer timer;
     
@@ -63,6 +64,8 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
     
     private long healthCheckCount = 0L;
     
+    private final List<MessageListener> messageListeners;
+    
     public DynamicRouter(Node node) {
         this.node = node;
         routingTable = new RoutingTable(node.getIdentifier());
@@ -74,6 +77,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
         routingTableLock = new ReentrantLock();
         reponseWaiterMap = new LinkedHashMap<>();
         lastHealthCheckTimeMap = new ConcurrentHashMap<>();
+        messageListeners = new LinkedList<>();
     }
     
     @Override
@@ -303,6 +307,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
                 }
                 
             } else {
+                
                 System.out.println("*(Arrived) " + node.getIdentifier() + " --> " + message.getBody());
                 System.out.println("Path : " + message.getPath());
                 if (message.getType() == MessageType.ACK) {
@@ -315,6 +320,7 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
                     }
                 } else {
                     sendAck(true, message);
+                    notifyListeners(message);
                 }
             }
         }
@@ -344,6 +350,19 @@ public class DynamicRouter extends TimerTask implements Router, MessageListener 
         Message ackMessage = new NetworkMessage(MessageType.ACK, node.getIdentifier(), message.getSender(), gson.toJson(ack));
         notifyMessage(ackMessage);
         
+    }
+
+    @Override
+    public void addIncommingMessageListener(MessageListener listener) {
+        messageListeners.add(listener);
+    }
+    
+    private void notifyListeners(Message message){
+        System.out.println("Router listener count " + messageListeners.size());
+        for (MessageListener messageListener : messageListeners) {
+            System.out.println("Router is notifiying...");
+            messageListener.notifyMessage(message);
+        }
     }
     
 }

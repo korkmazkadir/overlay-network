@@ -19,10 +19,13 @@ public class RoutingTable {
     private final NodeIdentifier nodeId;
 
     private final Map<String, RoutingTableEntry> entryList;
+    
+    private long version;
 
     public RoutingTable(NodeIdentifier nodeId) {
         this.nodeId = nodeId;
         entryList = new LinkedHashTreeMap<>();
+        version = 0L;
     }
 
     public NodeIdentifier getNodeId() {
@@ -35,13 +38,19 @@ public class RoutingTable {
     
     public void addEntry(RoutingTableEntry entry){
         entryList.put(entry.getDestinationNodeId().getNodeId(),entry);
+        version++;
     }
     
     public void updateCost(String nodeId, int cost){
         if(entryList.containsKey(nodeId)){
             System.out.println( nodeId + " new cost " + cost);
             entryList.get(nodeId).setCost(cost);
+            version++;
         }
+    }
+    
+    public long getVersion(){
+        return version;
     }
 
 }

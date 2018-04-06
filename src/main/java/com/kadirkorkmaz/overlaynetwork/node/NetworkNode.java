@@ -7,6 +7,7 @@ package com.kadirkorkmaz.overlaynetwork.node;
 
 import com.kadirkorkmaz.overlaynetwork.common.Connection;
 import com.kadirkorkmaz.overlaynetwork.common.Message;
+import com.kadirkorkmaz.overlaynetwork.common.MessageListener;
 import com.kadirkorkmaz.overlaynetwork.common.Node;
 import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.ConnectionType;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -30,25 +32,27 @@ import java.util.logging.Logger;
  *
  * @author Kadir Korkmaz
  */
-public class NetworkNode implements Node {
+public class NetworkNode implements Node, MessageListener {
 
     protected NodeIdentifier id;
     protected Connection incommingConnection;
     protected final List<Connection> connections;
     protected DynamicRouter router;
     protected final Statistic statistics;
+    private final List<MessageListener> messageListeners;
 
     protected NetworkNode() {
         this.connections = Collections.synchronizedList(new ArrayList());
         statistics = new Statistic();
+        messageListeners = new LinkedList<>();
     }
 
     public void initilize() throws IOException, TimeoutException {
         incommingConnection = new NetworkConnection(ConnectionType.INCOMMING_CONNECTION, id);
         router = new DynamicRouter(this);
+        router.addIncommingMessageListener(this);
         incommingConnection.openConnection();
         incommingConnection.addIncommingMessageListener(router);
-        System.out.println("Constructor-1");
     }
 
     public NetworkNode(NodeIdentifier id) throws IOException, TimeoutException {
@@ -59,6 +63,7 @@ public class NetworkNode implements Node {
         router = new DynamicRouter(this);
         incommingConnection.addIncommingMessageListener(router);
         statistics = new Statistic();
+        messageListeners = new LinkedList<>();
         System.out.println("Constructor-2");
     }
 
@@ -120,6 +125,24 @@ public class NetworkNode implements Node {
     @Override
     public RoutingTable getRoutinTable() {
         return router.getRoutingTable();
+    }
+
+    @Override
+    public void addIncommingMessageListener(MessageListener listener) {
+        messageListeners.add(listener);
+    }
+
+    private void notifyListeners(Message message) {
+        System.out.println("Node listener count " + messageListeners.size());
+        for (MessageListener messageListener : messageListeners) {
+            System.out.println("Network node is notifiying...");
+            messageListener.notifyMessage(message);
+        }
+    }
+
+    @Override
+    public void notifyMessage(Message message) {
+        notifyListeners(message);
     }
 
 }

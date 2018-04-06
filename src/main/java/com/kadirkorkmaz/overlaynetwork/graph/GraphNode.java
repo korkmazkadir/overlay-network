@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.kadirkorkmaz.overlaynetwork.topology;
+package com.kadirkorkmaz.overlaynetwork.graph;
 
 import java.util.Set;
 

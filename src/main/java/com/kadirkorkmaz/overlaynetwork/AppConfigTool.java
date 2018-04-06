@@ -7,12 +7,10 @@ package com.kadirkorkmaz.overlaynetwork;
 
 import com.kadirkorkmaz.overlaynetwork.common.NodeRegistry;
 import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
-import com.kadirkorkmaz.overlaynetwork.topology.GraphDrawer;
-import com.kadirkorkmaz.overlaynetwork.topology.GraphNode;
+import com.kadirkorkmaz.overlaynetwork.graph.GraphDrawer;
+import com.kadirkorkmaz.overlaynetwork.graph.GraphNode;
 import com.kadirkorkmaz.overlaynetwork.topology.imageviewer.ImageViewer;
-import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.rmi.RemoteException;
@@ -22,9 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -38,7 +34,7 @@ public class AppConfigTool {
     private static int tokenSize = 0;
     private static String commandDelimeter = " ";
 
-    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology", "kill", "clear"};
+    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology", "kill", "clear", "sendl", "sendr"};
 
     private static NodeRegistry nodeRegistry;
 
@@ -175,9 +171,55 @@ public class AppConfigTool {
                 boolean result = nodeRegistry.killNode(nodeId);
                 System.out.println("Killing " + nodeId + ", result = " + result);
             }
-        } else if (command.equals(availableCommands[7])) {
+        } else if (command.equals(availableCommands[8])) {
             System.out.print("\033[H\033[2J");
             System.out.flush();
+        } else if (command.equals(availableCommands[9])) {
+            //sendl
+
+            if (tokenSize < 4) {
+                System.err.println("Error : sendl accepts 4 parameter");
+                return;
+            }
+
+            String nodeId1 = inputTokes[1].trim();
+            String nodeId2 = inputTokes[2].trim();
+            String message = "";
+
+            for (int i = 3; i < tokenSize; i++) {
+                message = message + " " + inputTokes[i];
+            }
+
+            if (nodeId1.isEmpty() || nodeId2.isEmpty() || message.isEmpty()) {
+                System.out.println("Error : node id or message cannot be empty");
+                return;
+            }
+
+            Acknowledgement ack = nodeRegistry.ringSendLeft(nodeId1, nodeId2, message);
+            System.out.println("Ack : " + ack);
+
+        } else if (command.equals(availableCommands[10])) {
+            if (tokenSize < 4) {
+                System.err.println("Error : sendr accepts 4 parameter");
+                return;
+            }
+
+            String nodeId1 = inputTokes[1].trim();
+            String nodeId2 = inputTokes[2].trim();
+            String message = "";
+
+            for (int i = 3; i < tokenSize; i++) {
+                message = message + " " + inputTokes[i];
+            }
+
+            if (nodeId1.isEmpty() || nodeId2.isEmpty() || message.isEmpty()) {
+                System.out.println("Error : node id or message cannot be empty");
+                return;
+            }
+
+            Acknowledgement ack = nodeRegistry.ringSendRight(nodeId1, nodeId2, message);
+            System.out.println("Ack : " + ack);
+            
         }
 
     }

@@ -30,4 +30,6 @@ public interface Node {
  
     public RoutingTable getRoutinTable();
     
+    public void addIncommingMessageListener(MessageListener listener);
+    
 }

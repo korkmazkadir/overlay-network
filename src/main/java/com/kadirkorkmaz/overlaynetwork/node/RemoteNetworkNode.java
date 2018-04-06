@@ -7,17 +7,18 @@ package com.kadirkorkmaz.overlaynetwork.node;
 
 import com.kadirkorkmaz.overlaynetwork.common.Connection;
 import com.kadirkorkmaz.overlaynetwork.common.RemoteNode;
+import com.kadirkorkmaz.overlaynetwork.common.RemoteOverlayRingNode;
 import com.kadirkorkmaz.overlaynetwork.implementation.Acknowledgement;
 import com.kadirkorkmaz.overlaynetwork.implementation.NodeIdentifier;
+import com.kadirkorkmaz.overlaynetwork.ring.OverlayRingNode;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 import com.kadirkorkmaz.overlaynetwork.implementation.Statistic;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -26,15 +27,30 @@ import java.util.logging.Logger;
 public class RemoteNetworkNode extends NetworkNode implements RemoteNode {
 
     private final String prefix;
+    
+    private final RemoteOverlayRingNode ringOverlayNodeStub;
 
     public RemoteNetworkNode() throws IOException, TimeoutException {
         super();
-        this.prefix = "";
+        this.prefix = "";        
+        ringOverlayNodeStub = createStub();
     }
 
     public RemoteNetworkNode(String prefix) throws IOException, TimeoutException {
         super();
         this.prefix = prefix;
+        ringOverlayNodeStub = createStub();
+    }
+    
+    private RemoteOverlayRingNode createStub(){
+        OverlayRingNode ringNode = new OverlayRingNode(this);
+        RemoteOverlayRingNode stub = null;
+        try {
+            stub = (RemoteOverlayRingNode) UnicastRemoteObject.exportObject(ringNode, 0);
+        } catch (RemoteException ex) {
+            ex.printStackTrace();
+        }
+        return stub;
     }
 
     @Override
@@ -117,4 +133,9 @@ public class RemoteNetworkNode extends NetworkNode implements RemoteNode {
         }, 1000);
     }
 
+    @Override
+    public RemoteOverlayRingNode getRingOverlayNode() throws RemoteException {
+        return ringOverlayNodeStub;
+    }
+    
 }

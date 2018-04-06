@@ -37,4 +37,6 @@ public interface RemoteNode extends Remote {
 
     public void kill() throws RemoteException;
     
+    public RemoteOverlayRingNode getRingOverlayNode() throws RemoteException;
+    
 }
