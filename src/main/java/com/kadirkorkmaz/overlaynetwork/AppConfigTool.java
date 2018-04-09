@@ -38,7 +38,11 @@ public class AppConfigTool {
     private static int tokenSize = 0;
     private static String commandDelimeter = " ";
 
-    private static String[] availableCommands = {"list", "connect", "disconnect", "send", "help", "exit", "topology", "kill", "clear", "sendl", "sendr"};
+    private static String[] availableCommands = {
+        "list", "connect", "disconnect", "send", "help", 
+        "exit", "topology", "kill", "clear", "sendl", "sendr",
+        "topologyr"
+    };
 
     private static NodeRegistry nodeRegistry;
 
@@ -229,6 +233,17 @@ public class AppConfigTool {
             Acknowledgement ack = nodeRegistry.ringSendRight(nodeId1, nodeId2, message);
             System.out.println("Ack : " + ack);
             
+        }else if (command.equals(availableCommands[11])) {
+            System.out.println("Creating topology for overlay ring");
+            Map<String, List<String>> topology = nodeRegistry.getOverlayRingTopology();
+            Set<String> nodes = topology.keySet();
+            List<GraphNode> graphTopology = new ArrayList<>(topology.size());
+            for (String node : nodes) {
+                graphTopology.add(new GraphNode(node, new LinkedHashSet<>(topology.get(node))));
+            }
+            String outputFilePath = GraphDrawer.Draw(graphTopology);
+            ImageViewer viewer = new ImageViewer();
+            viewer.view(outputFilePath);
         }
 
     }

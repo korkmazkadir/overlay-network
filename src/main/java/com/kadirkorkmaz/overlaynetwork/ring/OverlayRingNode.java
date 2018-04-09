@@ -16,6 +16,8 @@ import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTable;
 import com.kadirkorkmaz.overlaynetwork.implementation.RoutingTableEntry;
 import com.kadirkorkmaz.overlaynetwork.node.NetworkNode;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -162,6 +164,20 @@ public class OverlayRingNode implements RemoteOverlayRingNode, MessageListener {
             }
 
         }
+    }
+
+    @Override
+    public String[] getConnectedNodeIds() throws RemoteException {
+        RingConnection ringConnection = getConnectedNodes();
+        List<String> connections = new ArrayList<>();
+        if(ringConnection.leftConnection != null){
+            connections.add(ringConnection.leftConnection);
+        }
+        if(ringConnection.rightConnection != null){
+            connections.add(ringConnection.rightConnection);
+        }
+        
+        return connections.toArray(new String[connections.size()]);
     }
 
     class OverlayRingMessage {

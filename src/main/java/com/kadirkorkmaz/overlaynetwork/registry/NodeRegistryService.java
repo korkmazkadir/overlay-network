@@ -179,4 +179,16 @@ public class NodeRegistryService implements NodeRegistry {
         return null;
     }
 
+    @Override
+    public Map<String, List<String>> getOverlayRingTopology() throws RemoteException {
+        Map<String, List<String>> topology = new LinkedHashMap<>();
+        synchronized (nodeMap) {
+            Set<String> nodes = nodeMap.keySet();
+            for (String node : nodes) {
+                topology.put(node, Arrays.asList(nodeMap.get(node).getRingOverlayNode().getConnectedNodeIds()));
+            }
+        }
+        return topology;
+    }
+
 }

@@ -19,4 +19,5 @@ public interface RemoteOverlayRingNode extends Remote {
 
     public Acknowledgement sendRight(String destinationNodeId, String message) throws RemoteException;
 
+    public String[] getConnectedNodeIds() throws RemoteException;
 }
