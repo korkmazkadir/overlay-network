@@ -21,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -28,6 +30,8 @@ import java.util.Set;
  */
 public class AppConfigTool {
 
+    private static final Logger logger = Logger.getLogger(AppConfigTool.class.getName());
+    
     private static String URL = "127.0.0.1";
 
     private static String[] inputTokes = new String[10];
@@ -142,6 +146,11 @@ public class AppConfigTool {
                 graphTopology.add(new GraphNode(node, new LinkedHashSet<>(topology.get(node))));
             }
 
+            if(ack == null){
+                logger.log(Level.INFO, "ACK is null, no need to draw message path");
+                return;
+            }
+            
             String outputFilePath = GraphDrawer.DrawPath(graphTopology, ack.getMessagePath());
             ImageViewer viewer = new ImageViewer();
             viewer.view(outputFilePath);

@@ -6,6 +6,7 @@
 package com.kadirkorkmaz.overlaynetwork.ring;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.kadirkorkmaz.overlaynetwork.common.Message;
 import com.kadirkorkmaz.overlaynetwork.common.MessageListener;
 import com.kadirkorkmaz.overlaynetwork.common.RemoteOverlayRingNode;
@@ -123,7 +124,14 @@ public class OverlayRingNode implements RemoteOverlayRingNode, MessageListener {
 
         System.out.println("Overlay Message : " + message.getBody());
 
-        OverlayRingMessage m = gson.fromJson(message.getBody(), OverlayRingMessage.class);
+        OverlayRingMessage m = null;
+        try {
+            m = gson.fromJson(message.getBody(), OverlayRingMessage.class);
+        } catch (JsonSyntaxException e) {
+            System.out.println("No need to process message on this level");
+            return;
+        }
+        
         if (m.destinationId.equals(getNodeId())) {
             System.out.println("Overlay Message Arrived : " + message.getBody());
         } else {
