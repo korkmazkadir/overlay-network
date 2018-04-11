@@ -55,7 +55,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.kadirkorkmaz.overlaynetwork.AppConfigTool</mainClass>
+                                    <mainClass>com.overlaynetwork.AppConfigTool</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -75,7 +75,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.kadirkorkmaz.overlaynetwork.AppNode</mainClass>
+                                    <mainClass>com.overlaynetwork.AppNode</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -95,7 +95,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>com.kadirkorkmaz.overlaynetwork.AppRegistry</mainClass>
+                                    <mainClass>com.overlaynetwork.AppRegistry</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
