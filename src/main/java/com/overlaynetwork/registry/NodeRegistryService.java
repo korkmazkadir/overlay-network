@@ -47,6 +47,7 @@ public class NodeRegistryService implements NodeRegistry {
             node.setId(nodeId);
             nodeMap.put(nodeId, node);
             randomTreeCreator.addNode(node);
+            System.out.println("Node registered with id : " + nodeId);
         }
     }
 
@@ -133,6 +134,8 @@ public class NodeRegistryService implements NodeRegistry {
             if (node != null) {
                 node.kill();
                 nodeMap.remove(nodeId);
+                randomTreeCreator.removeNode(nodeId);
+                System.out.println("Node is killed with id : " + nodeId);
                 return true;
             }
         }
@@ -149,6 +152,7 @@ public class NodeRegistryService implements NodeRegistry {
             nodeMap.clear();
             nodeIdMap.clear();
             randomTreeCreator.removeAllNodes();
+            System.out.println("All nodes are killed...");
         }
         return true;
     }

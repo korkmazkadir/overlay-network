@@ -8,7 +8,9 @@ package com.overlaynetwork.implementation;
 import com.overlaynetwork.common.RemoteNode;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -17,22 +19,44 @@ import java.util.Random;
  */
 public class RandomTreeCreator {
 
+    Map<String, RemoteNode> nameNodeMap;
     List<RemoteNode> nodes;
 
     public RandomTreeCreator() {
         nodes = new ArrayList<>();
+        nameNodeMap = new LinkedHashMap<>();
     }
 
     public void addNode(RemoteNode newNode) {
         synchronized (nodes) {
+
             connectNodes(newNode, getRandomNode());
             nodes.add(newNode);
+            
+            try {
+                nameNodeMap.put(newNode.getId(), newNode);
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+            
         }
     }
 
     public void removeAllNodes() {
         synchronized (nodes) {
             nodes.clear();
+            nameNodeMap.clear();
+        }
+    }
+
+    public void removeNode(String nodeId) {
+        synchronized (nodes) {
+            RemoteNode node = nameNodeMap.get(nodeId);
+            if(node != null){
+                boolean removeResult = nodes.remove(node);
+                System.out.println("Removing node from random tree creator : " + nodeId + " result : " + removeResult);
+                nameNodeMap.remove(node);
+            }
         }
     }
 

@@ -52,18 +52,24 @@ public class AppConfigTool {
 
     private static void printCommands() {
         System.out.println("== Available Commands ==");
+        
         System.out.println("list            :   Lists available nodes");
+        
         System.out.println("connect [nodeId1] [nodeId2] :   Add connection between two noods");
         System.out.println("disconnect [nodeId1] [nodeId2]  :   Remove connection between two noods");
-        System.out.println("send [source] [destination] [message] :   Send message from source to destination");
-        System.out.println("help :   Provides help");
-        System.out.println("exit :   Exit");
+        
         System.out.println("topology  :   Shows topology of the network");
-        System.out.println("kill [nodeId] [-all]    :   Shows topology of the network");
-        System.out.println("clear  :   clears screen");
+        System.out.println("topologyr  :   overlayring show topology");
+        
+        System.out.println("send [source] [destination] [message] :   Send message from source to destination");
         System.out.println("sendl  :   overlay ring send left");
         System.out.println("sendr  :   overlay ring send right");
-        System.out.println("topologyr  :   overlayring show topology");
+        
+        System.out.println("kill [nodeId] [-all]    :   Shows topology of the network");
+        
+        System.out.println("clear  :   clears screen");
+        System.out.println("help :   Provides help");
+        System.out.println("exit :   Exit");
     }
 
     private static String getUserInput() throws IOException {
